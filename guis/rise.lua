@@ -9,6 +9,7 @@ local mainapi = {
 	HeldKeybinds = {},
 	Keybind = {'RightShift'},
 	Loaded = false,
+	Loader = false,
 	Legit = {Modules = {}},
 	Libraries = {},
 	Modules = {},
@@ -222,23 +223,188 @@ local function checkKeybinds(compare, target, key)
 	return false
 end
 
-local function createDownloader(text)
-	if mainapi.Loaded ~= true then
-		local downloader = mainapi.Downloader
-		if not downloader then
-			downloader = Instance.new('TextLabel')
-			downloader.Size = UDim2.new(1, 0, 0, 40)
-			downloader.BackgroundTransparency = 1
-			downloader.TextStrokeTransparency = 0
-			downloader.TextSize = 20
-			downloader.TextColor3 = Color3.new(1, 1, 1)
-			downloader.FontFace = Font.fromEnum(Enum.Font.Arial)
-			downloader.Parent = mainapi.gui
-			mainapi.Downloader = downloader
+local function makeDraggable(obj, window)
+	obj.InputBegan:Connect(function(inputObj)
+		if window and not window.Visible then return end
+		if
+			(inputObj.UserInputType == Enum.UserInputType.MouseButton1 or inputObj.UserInputType == Enum.UserInputType.Touch)
+			and (inputObj.Position.Y - obj.AbsolutePosition.Y < 40 or window)
+		then
+			local dragPosition = Vector2.new(obj.AbsolutePosition.X - inputObj.Position.X, obj.AbsolutePosition.Y - inputObj.Position.Y + guiService:GetGuiInset().Y) / scale.Scale
+			local changed = inputService.InputChanged:Connect(function(input)
+				if input.UserInputType == (inputObj.UserInputType == Enum.UserInputType.MouseButton1 and Enum.UserInputType.MouseMovement or Enum.UserInputType.Touch) then
+					local position = input.Position
+					if inputService:IsKeyDown(Enum.KeyCode.LeftShift) then
+						dragPosition = (dragPosition // 3) * 3
+						position = (position // 3) * 3
+					end
+					obj.Position = UDim2.fromOffset((position.X / scale.Scale) + dragPosition.X, (position.Y / scale.Scale) + dragPosition.Y)
+				end
+			end)
+
+			local ended
+			ended = inputObj.Changed:Connect(function()
+				if inputObj.UserInputState == Enum.UserInputState.End then
+					if changed then
+						changed:Disconnect()
+					end
+					if ended then
+						ended:Disconnect()
+					end
+				end
+			end)
 		end
-		downloader.Text = 'Downloading '..text
-	end
+	end)
 end
+
+local info = TweenInfo.new(0.8, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out)
+local Downloading = false
+local Number = 0
+local LastLabel = ""
+
+local function new(class, props, parent)
+    local obj = Instance.new(class)
+    for k, v in pairs(props) do
+        obj[k] = v
+    end
+    obj.Parent = parent
+    return obj
+end
+
+local function Downloader(mode, label)
+    local gui = new("ScreenGui", {
+        Name = "Installer",
+        ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    }, (gethui and gethui()) or CoreGui)
+
+    local bg = new("CanvasGroup", {
+        Name = "Background",
+        BackgroundColor3 = Color3.fromRGB(23, 26, 33),
+        BackgroundTransparency = 0.1,
+        GroupTransparency = 1,
+        Size = UDim2.fromOffset(502, 179),
+        Position = UDim2.fromScale(0.5, 0.5),
+        AnchorPoint = Vector2.new(0.5, 0.5)
+    }, gui)
+    addCorner(bg, UDim.new(0, 22))
+    makeDraggable(bg)
+    new("UIListLayout", {
+        HorizontalAlignment = Enum.HorizontalAlignment.Center,
+        SortOrder = Enum.SortOrder.LayoutOrder
+    }, bg)
+    new("TextLabel", {
+        Text = mainapi.Version,
+        LayoutOrder = 1,
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 0, 50),
+        FontFace = Font.fromEnum(Enum.Font.Arial),
+        TextSize = 18,
+        TextColor3 = Color3.new(1,1,1),
+        TextYAlignment = Bottom
+    }, bg)
+
+    local title = new("TextLabel", {
+        Text = "Sentinel",
+        LayoutOrder = 2,
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 0, 50),
+        FontFace = Font.fromEnum(Enum.Font.Arial),
+        TextSize = 38,
+        TextColor3 = Color3.new(1,1,1),
+        TextYAlignment = Top
+    }, bg)
+
+    GradientAPI:CreateGradient({
+        Object = title,
+        Colors = {
+            Main = Color3.fromRGB(45,173,198),
+            Secondary = Color3.fromRGB(78,137,173),
+            Third = Color3.fromRGB(255,255,255)
+        },
+        Mode = "fade",
+        Direction = "LeftToRight",
+        Speed = 1
+    })
+
+    local barHolder = new("Frame", {
+        LayoutOrder = 3,
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 0, 25)
+    }, bg)
+    local barBG = new("Frame", {
+        BackgroundColor3 = Color3.fromRGB(25, 28, 36),
+        Size = UDim2.fromOffset(175, 10)
+    }, barHolder)
+	addCorner(barBG, UDim.new(0, 999))
+    local bar = new("Frame", {
+        BackgroundColor3 = Color3.fromRGB(25, 28, 36),
+        Size = UDim2.new(0, 0, 1, 0)
+    }, barBG)
+	addCorner(bar, UDim.new(0, 999))
+
+    local status = new("TextLabel", {
+        LayoutOrder = 4,
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 0, 50),
+        FontFace = Font.fromEnum(Enum.Font.Arial),
+        TextSize = 16,
+        TextTransparency = 0.7,
+        TextColor3 = Color3.new(1,1,1)
+    }, bg)
+
+    tweenService:Create(bg, info, { GroupTransparency = 0 }):Play()
+
+    if mode == "Download" then
+        Downloading = true
+        LastLabel = label
+        status.Text = "Downloading " .. label
+        task.spawn(function()
+            while Downloading do
+                local pct = math.clamp(Number / 20, 0, 1)
+                tweenService:Create(bar, TweenInfo.new(0.3), {
+                    Size = UDim2.new(pct, 0, 1, 0)
+                }):Play()
+                if pct >= 1 then
+                    Downloading = false
+                end
+                task.wait(0.4)
+            end
+            status.Text = "Rise Loading"
+            tweenService:Create(bar, TweenInfo.new(1), {
+                Size = UDim2.new(1, 0, 1, 0)
+            }):Play()
+            task.wait(2)
+            tweenService:Create(bg, info, { GroupTransparency = 1 }):Play()
+            task.wait(1.5)
+            gui:Destroy()
+            mainapi.Loader = false
+        end)
+
+    elseif mode == "Error" then
+        status.Text = "Rise Failed Loading: " .. label
+        status.TextColor3 = Color3.fromRGB(255, 0, 0)
+    else
+        tweenService:Create(bar, TweenInfo.new(8), {
+            Size = UDim2.new(1, 0, 1, 0)
+        }):Play()
+        status.Text = "Loading."
+        task.wait(7)
+        tweenService:Create(bg, info, { GroupTransparency = 1 }):Play()
+        task.wait(2)
+        gui:Destroy()
+    end
+end
+
+local function createDownloader(text)
+    if mainapi.Loaded then return end
+    Number = math.clamp(Number + 1, 0, 20)
+    if not mainapi.Loader then
+        mainapi.Loader = true
+        Downloader("Download", text)
+    end
+end
+
+
 
 local function createHighlight(size, pos)
 	local old = categoryhighlight
@@ -309,40 +475,6 @@ local function loadJson(path)
 		return httpService:JSONDecode(readfile(path))
 	end)
 	return suc and type(res) == 'table' and res or nil
-end
-
-local function makeDraggable(obj, window)
-	obj.InputBegan:Connect(function(inputObj)
-		if window and not window.Visible then return end
-		if
-			(inputObj.UserInputType == Enum.UserInputType.MouseButton1 or inputObj.UserInputType == Enum.UserInputType.Touch)
-			and (inputObj.Position.Y - obj.AbsolutePosition.Y < 40 or window)
-		then
-			local dragPosition = Vector2.new(obj.AbsolutePosition.X - inputObj.Position.X, obj.AbsolutePosition.Y - inputObj.Position.Y + guiService:GetGuiInset().Y) / scale.Scale
-			local changed = inputService.InputChanged:Connect(function(input)
-				if input.UserInputType == (inputObj.UserInputType == Enum.UserInputType.MouseButton1 and Enum.UserInputType.MouseMovement or Enum.UserInputType.Touch) then
-					local position = input.Position
-					if inputService:IsKeyDown(Enum.KeyCode.LeftShift) then
-						dragPosition = (dragPosition // 3) * 3
-						position = (position // 3) * 3
-					end
-					obj.Position = UDim2.fromOffset((position.X / scale.Scale) + dragPosition.X, (position.Y / scale.Scale) + dragPosition.Y)
-				end
-			end)
-
-			local ended
-			ended = inputObj.Changed:Connect(function()
-				if inputObj.UserInputState == Enum.UserInputState.End then
-					if changed then
-						changed:Disconnect()
-					end
-					if ended then
-						ended:Disconnect()
-					end
-				end
-			end)
-		end
-	end)
 end
 
 local function randomString()
@@ -2610,6 +2742,7 @@ swatermark.Size = UDim2.fromOffset(70, 40)
 swatermark.Position = UDim2.fromOffset(28, 22)
 swatermark.BackgroundTransparency = 1
 swatermark.Text = 'Sentinel'
+swatermark.TextColor3 = Color3.fromRGB(255, 255, 255)
 swatermark.TextSize = 38
 swatermark.TextXAlignment = Enum.TextXAlignment.Left
 swatermark.TextYAlignment = Enum.TextYAlignment.Top
