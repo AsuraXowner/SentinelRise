@@ -2866,7 +2866,7 @@ scaleslider = mainapi.Categories.Main:CreateSlider({
 })
 mainapi.Categories.Main:CreateDropdown({
 	Name = 'GUI Theme',
-	List = {'rise',
+	List = {'rise'},
 	Function = function(val, mouse)
 		if mouse then
 			writefile('newvape/profiles/gui.txt', val)
