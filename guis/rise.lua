@@ -1,3 +1,4 @@
+--This watermark is used to delete the file if its cached, remove it to make the file persist after vape updates.
 local mainapi = {
 	Categories = {},
 	GUIColor = {
@@ -21,7 +22,7 @@ local mainapi = {
 	Scale = {Value = 1},
 	ToggleNotifications = {Enabled = true},
 	ThreadFix = setthreadidentity and true or false,
-	Version = '6.1.35',
+	Version = '1.05',
 	Windows = {}
 }
 
@@ -1748,6 +1749,7 @@ function mainapi:CreateCategory(categorysettings)
 		local modulebutton = Instance.new('TextButton')
 		modulebutton.Size = UDim2.fromOffset(566, 76)
 		modulebutton.BackgroundColor3 = color.Dark(uipallet.Main, 0.03)
+		modulebutton.BackgroundTransparency = 0.8
 		modulebutton.AutoButtonColor = false
 		modulebutton.Text = ''
 		modulebutton.Parent = children
@@ -2237,7 +2239,7 @@ function mainapi:CreateNotification(title, text, duration, type, continued)
 	end
 	if title == 'Finished Loading' then
 		title = 'Rise'
-		text = 'Reconnecting to nothing...'
+		text = 'Finished Loading...'
 		duration = 5
 	end
 	local notification = Instance.new('Frame')
@@ -2247,6 +2249,7 @@ function mainapi:CreateNotification(title, text, duration, type, continued)
 	notification.AnchorPoint = Vector2.new(0.5, 0.5)
 	notification.BackgroundTransparency = 1
 	notification.BackgroundColor3 = color.Dark(uipallet.Main, 0.4)
+	notification.AutomaticSize = Enum.AutomaticSize.Y
 	notification.Parent = notifications
 	addCorner(notification)
 	local scale = Instance.new('UIScale')
@@ -2278,6 +2281,8 @@ function mainapi:CreateNotification(title, text, duration, type, continued)
 	textlabel.Text = text
 	textlabel.TextColor3 = uipallet.Text
 	textlabel.TextSize = 17
+	textlabel.AutomaticSize = Enum.AutomaticSize.XY
+	textlabel.TextWrapped = true
 	textlabel.TextXAlignment = Enum.TextXAlignment.Left
 	textlabel.TextYAlignment = Enum.TextYAlignment.Center
 	textlabel.FontFace = uipallet.FontLight
@@ -2575,6 +2580,7 @@ mainframe.Size = UDim2.fromOffset(800, 600)
 mainframe.Position = UDim2.fromScale(0.5, 0.5)
 mainframe.AnchorPoint = Vector2.new(0.5, 0.5)
 mainframe.BackgroundColor3 = uipallet.Main
+mainframe.BackgroundTransparency = 0.1
 mainframe.GroupTransparency = 1
 mainframe.Parent = clickgui
 --addBlur(mainframe)
@@ -2588,12 +2594,14 @@ mainscale.Parent = mainframe
 addCorner(mainframe)
 sidebar = Instance.new('Frame')
 sidebar.Size = UDim2.new(0, 200, 1, 0)
+sidebar.BackgroundTransparency = 1
 sidebar.BackgroundColor3 = color.Dark(uipallet.Main, 0.03)
 sidebar.Parent = mainframe
 addCorner(sidebar)
 local scorner = Instance.new('Frame')
 scorner.BorderSizePixel = 0
 scorner.BackgroundColor3 = color.Dark(uipallet.Main, 0.03)
+scorner.BackgroundTransparency = 0.8
 scorner.Position = UDim2.new(1, -20, 0, 0)
 scorner.Size = UDim2.new(0, 20, 1, 0)
 scorner.Parent = sidebar
@@ -2601,16 +2609,26 @@ local swatermark = Instance.new('TextLabel')
 swatermark.Size = UDim2.fromOffset(70, 40)
 swatermark.Position = UDim2.fromOffset(28, 22)
 swatermark.BackgroundTransparency = 1
-swatermark.Text = 'Rise'
-swatermark.TextColor3 = uipallet.Text
+swatermark.Text = 'Sentinel'
 swatermark.TextSize = 38
 swatermark.TextXAlignment = Enum.TextXAlignment.Left
 swatermark.TextYAlignment = Enum.TextYAlignment.Top
 swatermark.FontFace = uipallet.Font
 swatermark.Parent = sidebar
+GradientAPI:CreateGradient({
+	Object = swatermark,
+	Colors = {
+		Main = Color3.fromRGB(45, 173, 198),
+		Secondary = Color3.fromRGB(78, 137, 173),
+		Third = Color3.fromRGB(255, 255, 255)
+	},
+	Mode = "fade",
+	Direction = "LeftToRight",
+	Speed = 1,
+})
 local swatermarkversion = Instance.new('TextLabel')
 swatermarkversion.Size = UDim2.fromOffset(70, 40)
-swatermarkversion.Position = UDim2.fromOffset(85, 20)
+swatermarkversion.Position = UDim2.fromOffset(30, 10)
 swatermarkversion.BackgroundTransparency = 1
 swatermarkversion.Text = mainapi.Version
 swatermarkversion.TextColor3 = uipallet.MainColor
@@ -2695,7 +2713,7 @@ mainapi:CreateCategory({
 })
 mainapi:CreateCategory({
 	Name = 'Sentinel',
-	RiseIcon = getcustomasset('newvape/assets/rise/sentinel.png'),
+	RiseIcon = 'c',
 })
 mainapi:CreateCategory({
 	Name = 'Exploit',
@@ -2995,7 +3013,7 @@ local watermark = Instance.new('TextLabel')
 watermark.Size = UDim2.fromOffset(70, 40)
 watermark.Position = UDim2.fromOffset(12, guiService:GetGuiInset().Y + 5)
 watermark.BackgroundTransparency = 1
-watermark.Text = 'Rise'
+watermark.Text = 'Sentinel'
 watermark.TextColor3 = Color3.new(1, 1, 1)
 watermark.TextSize = 43
 watermark.TextXAlignment = Enum.TextXAlignment.Left
@@ -3073,7 +3091,7 @@ local targetinfoname = Instance.new('TextLabel')
 targetinfoname.Size = UDim2.fromOffset(60, 30)
 targetinfoname.Position = UDim2.fromOffset(158, 21)
 targetinfoname.BackgroundTransparency = 1
-targetinfoname.Text = 'Rise'
+targetinfoname.Text = 'Sentinel'
 targetinfoname.TextSize = 26
 targetinfoname.TextXAlignment = Enum.TextXAlignment.Left
 targetinfoname.TextColor3 = uipallet.MainColor
