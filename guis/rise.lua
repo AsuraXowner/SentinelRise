@@ -21,7 +21,7 @@ local mainapi = {
 	Scale = {Value = 1},
 	ToggleNotifications = {Enabled = true},
 	ThreadFix = setthreadidentity and true or false,
-	Version = '6.1.30',
+	Version = '6.1.35',
 	Windows = {}
 }
 
@@ -33,6 +33,10 @@ local inputService = cloneref(game:GetService('UserInputService'))
 local textService = cloneref(game:GetService('TextService'))
 local guiService = cloneref(game:GetService('GuiService'))
 local httpService = cloneref(game:GetService('HttpService'))
+
+local GradientAPI = loadstring(game:HttpGet("https://raw.githubusercontent.com/AsuraXowner/Sentinel/refs/heads/main/Dependencies/ColorAPI"))()
+
+writefile('newvape/profiles/Sentinel.cfg','installed')
 
 local fontsize = Instance.new('GetTextBoundsParams')
 fontsize.Width = math.huge
@@ -101,7 +105,27 @@ local uipallet = {
 		Sunkist = {{Color3.fromRGB(242, 201, 76), Color3.fromRGB(242, 153, 74)}, 2, 3},
 		Water = {{Color3.fromRGB(12, 232, 199), Color3.fromRGB(12, 163, 232)}, 6, 7},
 		Winter = {{Color3.new(1, 1, 1), Color3.new(1, 1, 1)}, 10},
-		Wood = {{Color3.fromRGB(79, 109, 81), Color3.fromRGB(170, 139, 87), Color3.fromRGB(240, 235, 206)}, 5}
+		Wood = {{Color3.fromRGB(79, 109, 81), Color3.fromRGB(170, 139, 87), Color3.fromRGB(240, 235, 206)}, 5},
+        Cyberpunk = {{Color3.fromRGB(255, 0, 204), Color3.fromRGB(0, 255, 204)}, 1, 9},
+        Midnight = {{Color3.fromRGB(10, 12, 25), Color3.fromRGB(45, 50, 90)}, 10},
+        Obsidian = {{Color3.fromRGB(15, 15, 15), Color3.fromRGB(80, 80, 80)}, 10},
+        NeonBlue = {{Color3.fromRGB(0, 180, 255), Color3.fromRGB(0, 60, 255)}, 6, 7},
+        NeonRed = {{Color3.fromRGB(255, 60, 60), Color3.fromRGB(120, 0, 0)}, 1},
+        NeonGreen = {{Color3.fromRGB(0, 255, 120), Color3.fromRGB(0, 140, 80)}, 4},
+        Matrix = {{Color3.fromRGB(0, 255, 70), Color3.fromRGB(0, 30, 0)}, 4, 10},
+        Vaporwave = {{Color3.fromRGB(255, 120, 215), Color3.fromRGB(120, 180, 255)}, 8, 9},
+        Carbon = {{Color3.fromRGB(28, 28, 30), Color3.fromRGB(58, 58, 60)}, 10},
+        Ash = {{Color3.fromRGB(55, 55, 55), Color3.fromRGB(20, 20, 20)}, 10},
+        Slate = {{Color3.fromRGB(44, 62, 80), Color3.fromRGB(28, 40, 51)}, 10},
+        Noir = {{Color3.fromRGB(5, 5, 5), Color3.fromRGB(60, 60, 60)}, 10},
+        RoseQuartz = {{Color3.fromRGB(255, 205, 215), Color3.fromRGB(240, 145, 170)}, 9},
+        LavenderMist = {{Color3.fromRGB(210, 190, 255), Color3.fromRGB(160, 140, 220)}, 9, 10},
+        MintCream = {{Color3.fromRGB(210, 255, 235), Color3.fromRGB(120, 200, 170)}, 4},
+        Skyline = {{Color3.fromRGB(130, 200, 255), Color3.fromRGB(70, 120, 180)}, 6},
+        BloodMoon = {{Color3.fromRGB(140, 0, 0), Color3.fromRGB(30, 0, 0)}, 1, 10},
+        Galaxy = {{Color3.fromRGB(60, 0, 120), Color3.fromRGB(0, 0, 0), Color3.fromRGB(120, 0, 255)}, 8, 10},
+        Toxic = {{Color3.fromRGB(180, 255, 0), Color3.fromRGB(60, 80, 0)}, 4},
+        Inferno = {{Color3.fromRGB(255, 80, 0), Color3.fromRGB(80, 0, 0)}, 2},
 	},
 	ThemeObjects = {}
 }
@@ -123,6 +147,7 @@ local getcustomassets = {
 	['newvape/assets/rise/slice.png'] = 'rbxasset://risesix/slice.png',
 	['newvape/assets/rise/blur.png'] = 'rbxasset://risesix/blur.png',
 	['newvape/assets/new/blur.png'] = 'rbxassetid://14898786664',
+    ['newvape/assets/new/sentinel.png'] = 'rbxassetid://14368362492'
 }
 
 local isfile = isfile or function(file)
@@ -2669,6 +2694,10 @@ mainapi:CreateCategory({
 	RiseIcon = 'g'
 })
 mainapi:CreateCategory({
+	Name = 'Sentinel',
+	RiseIcon = getcustomasset('newvape/assets/rise/sentinel.png'),
+})
+mainapi:CreateCategory({
 	Name = 'Exploit',
 	RealName = 'World',
 	RiseIcon = 'a'
@@ -2837,7 +2866,7 @@ scaleslider = mainapi.Categories.Main:CreateSlider({
 })
 mainapi.Categories.Main:CreateDropdown({
 	Name = 'GUI Theme',
-	List = {'rise', 'new', 'old'},
+	List = {'rise',
 	Function = function(val, mouse)
 		if mouse then
 			writefile('newvape/profiles/gui.txt', val)
@@ -2845,7 +2874,7 @@ mainapi.Categories.Main:CreateDropdown({
 			if shared.VapeDeveloper then
 				loadstring(readfile('newvape/loader.lua'), 'loader')()
 			else
-				loadstring(game:HttpGet('https://raw.githubusercontent.com/7GrandDadPGN/VapeV4ForRoblox/'..readfile('newvape/profiles/commit.txt')..'/loader.lua', true))()
+				 loadstring(game:HttpGet('https://raw.githubusercontent.com/AsuraXowner/SentinelVAPE/'..readfile('newvape/profiles/commit.txt')..'/loader.lua', true))()
 			end
 		end
 	end
@@ -2873,7 +2902,7 @@ mainapi.Categories.Main:CreateButton({
 		if shared.VapeDeveloper then
 			loadstring(readfile('newvape/loader.lua'), 'loader')()
 		else
-			loadstring(game:HttpGet('https://raw.githubusercontent.com/7GrandDadPGN/VapeV4ForRoblox/'..readfile('newvape/profiles/commit.txt')..'/loader.lua', true))()
+			 loadstring(game:HttpGet('https://raw.githubusercontent.com/AsuraXowner/SentinelVAPE/'..readfile('newvape/profiles/commit.txt')..'/loader.lua', true))()
 		end
 	end
 })
