@@ -1,5 +1,4 @@
 --This watermark is used to delete the file if its cached, remove it to make the file persist after vape updates.
---This watermark is used to delete the file if its cached, remove it to make the file persist after vape updates.
 local mainapi = {
 	Categories = {},
 	GUIColor = {
@@ -39,8 +38,6 @@ local httpService = cloneref(game:GetService('HttpService'))
 
 local GradientAPI = loadstring(game:HttpGet("https://raw.githubusercontent.com/AsuraXowner/Sentinel/refs/heads/main/Dependencies/ColorAPI"))()
 local info = TweenInfo.new(0.8, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out)
-
-writefile('newvape/profiles/Sentinel.cfg','installed')
 
 local fontsize = Instance.new('GetTextBoundsParams')
 fontsize.Width = math.huge
@@ -153,10 +150,10 @@ local themecolors = {
 }
 
 local getcustomassets = {
-	['newvape/assets/rise/slice.png'] = 'rbxasset://risesix/slice.png',
-	['newvape/assets/rise/blur.png'] = 'rbxasset://risesix/blur.png',
-	['newvape/assets/new/blur.png'] = 'rbxassetid://14898786664',
-    ['newvape/assets/new/sentinel.png'] = 'rbxassetid://14368362492'
+	['sentinelrise/assets/rise/slice.png'] = 'rbxasset://risesix/slice.png',
+	['sentinelrise/assets/rise/blur.png'] = 'rbxasset://risesix/blur.png',
+	['sentinelrise/assets/new/blur.png'] = 'rbxassetid://14898786664',
+    ['sentinelrise/assets/new/sentinel.png'] = 'rbxassetid://14368362492'
 }
 
 local isfile = isfile or function(file)
@@ -181,7 +178,7 @@ local function addBlur(parent)
 	blur.Size = UDim2.new(1, 42, 1, 42)
 	blur.Position = UDim2.fromOffset(-24, -15)
 	blur.BackgroundTransparency = 1
-	blur.Image = getcustomasset('newvape/assets/new/blur.png')
+	blur.Image = getcustomasset('sentinelrise/assets/new/blur.png')
 	blur.ScaleType = Enum.ScaleType.Slice
 	blur.SliceCenter = Rect.new(44, 38, 804, 595)
 	blur.Parent = parent
@@ -483,8 +480,8 @@ local function downloadFile(path, func)
         local suc, res = pcall(function()
             return game:HttpGet(
                 'https://raw.githubusercontent.com/AsuraXowner/SentinelRise/' ..
-                readfile('newvape/profiles/commit.txt') .. '/' ..
-                select(1, path:gsub('newvape/', '')),
+                readfile('sentinelrise/profiles/commit.txt') .. '/' ..
+                select(1, path:gsub('sentinelrise/', '')),
                 true
             )
         end)
@@ -546,21 +543,21 @@ end
 
 local function writeFont()
 	if not assetfunction then return 'rbxasset://fonts/productsans.json' end
-	writefile('newvape/assets/rise/risefont.json', httpService:JSONEncode({
+	writefile('sentinelrise/assets/rise/risefont.json', httpService:JSONEncode({
 		name = 'ProductSans',
 		faces = {
-			{style = 'normal', assetId = getcustomasset('newvape/assets/rise/SF-Pro-Rounded-Light.otf'), name = 'Light', weight = 300},
-			{style = 'normal', assetId = getcustomasset('newvape/assets/rise/SF-Pro-Rounded-Regular.otf'), name = 'Regular', weight = 400},
-			{style = 'normal', assetId = getcustomasset('newvape/assets/rise/SF-Pro-Rounded-Medium.otf'), name = 'Medium', weight = 500},
-			{style = 'normal', assetId = getcustomasset('newvape/assets/rise/Icon-1.ttf'), name = 'Icon1', weight = 600},
-			{style = 'normal', assetId = getcustomasset('newvape/assets/rise/Icon-3.ttf'), name = 'Icon3', weight = 800}
+			{style = 'normal', assetId = getcustomasset('sentinelrise/assets/rise/SF-Pro-Rounded-Light.otf'), name = 'Light', weight = 300},
+			{style = 'normal', assetId = getcustomasset('sentinelrise/assets/rise/SF-Pro-Rounded-Regular.otf'), name = 'Regular', weight = 400},
+			{style = 'normal', assetId = getcustomasset('sentinelrise/assets/rise/SF-Pro-Rounded-Medium.otf'), name = 'Medium', weight = 500},
+			{style = 'normal', assetId = getcustomasset('sentinelrise/assets/rise/Icon-1.ttf'), name = 'Icon1', weight = 600},
+			{style = 'normal', assetId = getcustomasset('sentinelrise/assets/rise/Icon-3.ttf'), name = 'Icon3', weight = 800}
 		}
 	}))
-	return getcustomasset('newvape/assets/rise/risefont.json')
+	return getcustomasset('sentinelrise/assets/rise/risefont.json')
 end
 
 if inputService.TouchEnabled then
-	writefile('newvape/profiles/gui.txt', 'new')
+	writefile('sentinelrise/profiles/gui.txt', 'new')
 	return
 end
 
@@ -572,7 +569,7 @@ do
 	uipallet.FontIcon1 = Font.new(risefont, Enum.FontWeight.SemiBold)
 	uipallet.FontIcon3 = Font.new(risefont, Enum.FontWeight.ExtraBold)
 
-	local res = isfile('newvape/profiles/color.txt') and loadJson('newvape/profiles/color.txt')
+	local res = isfile('sentinelrise/profiles/color.txt') and loadJson('sentinelrise/profiles/color.txt')
 	if res then
 		uipallet.Main = res.Main and Color3.fromRGB(unpack(res.Main)) or uipallet.Main
 		uipallet.Text = res.Text and Color3.fromRGB(unpack(res.Text)) or uipallet.Text
@@ -1415,8 +1412,8 @@ components = {
 					if ind then
 						if val ~= 'default' then
 							table.remove(mainapi.Profiles, ind)
-							if isfile('newvape/profiles/'..val..mainapi.Place..'.txt') and delfile then
-								delfile('newvape/profiles/'..val..mainapi.Place..'.txt')
+							if isfile('sentinelrise/profiles/'..val..mainapi.Place..'.txt') and delfile then
+								delfile('sentinelrise/profiles/'..val..mainapi.Place..'.txt')
 							end
 						end
 					else
@@ -2519,8 +2516,8 @@ function mainapi:Load(skipgui, profile)
 	local guidata = {}
 	local savecheck = true
 
-	if isfile('newvape/profiles/'..game.GameId..'.gui.txt') then
-		guidata = loadJson('newvape/profiles/'..game.GameId..'.gui.txt')
+	if isfile('sentinelrise/profiles/'..game.GameId..'.gui.txt') then
+		guidata = loadJson('sentinelrise/profiles/'..game.GameId..'.gui.txt')
 		if not guidata then
 			guidata = {Categories = {}}
 			self:CreateNotification('Vape', 'Failed to load GUI settings.', 10, 'alert')
@@ -2549,8 +2546,8 @@ function mainapi:Load(skipgui, profile)
 	}}
 	--self.Categories.Profiles:ChangeValue()
 
-	if isfile('newvape/profiles/'..self.Profile..self.Place..'.txt') then
-		local savedata = loadJson('newvape/profiles/'..self.Profile..self.Place..'.txt')
+	if isfile('sentinelrise/profiles/'..self.Profile..self.Place..'.txt') then
+		local savedata = loadJson('sentinelrise/profiles/'..self.Profile..self.Place..'.txt')
 		if not savedata then
 			savedata = {
 				Categories = {},
@@ -2671,8 +2668,8 @@ function mainapi:Save(newprofile)
 		}
 	end
 
-	writefile('newvape/profiles/'..game.GameId..'.gui.txt', httpService:JSONEncode(guidata))
-	writefile('newvape/profiles/'..self.Profile..self.Place..'.txt', httpService:JSONEncode(savedata))
+	writefile('sentinelrise/profiles/'..game.GameId..'.gui.txt', httpService:JSONEncode(guidata))
+	writefile('sentinelrise/profiles/'..self.Profile..self.Place..'.txt', httpService:JSONEncode(savedata))
 end
 
 function mainapi:SaveOptions(object, savedoptions)
@@ -3079,12 +3076,12 @@ mainapi.Categories.Main:CreateDropdown({
 	List = {'rise'},
 	Function = function(val, mouse)
 		if mouse then
-			writefile('newvape/profiles/gui.txt', val)
+			writefile('sentinelrise/profiles/gui.txt', val)
 			shared.vapereload = true
 			if shared.VapeDeveloper then
-				loadstring(readfile('newvape/loader.lua'), 'loader')()
+				loadstring(readfile('sentinelrise/loader.lua'), 'loader')()
 			else
-				 loadstring(game:HttpGet('https://raw.githubusercontent.com/AsuraXowner/SentinelVAPE/'..readfile('newvape/profiles/commit.txt')..'/loader.lua', true))()
+				 loadstring(game:HttpGet('https://raw.githubusercontent.com/AsuraXowner/SentinelRise/'..readfile('sentinelrise/profiles/commit.txt')..'/loader.lua', true))()
 			end
 		end
 	end
@@ -3110,9 +3107,9 @@ mainapi.Categories.Main:CreateButton({
 	Function = function()
 		shared.vapereload = true
 		if shared.VapeDeveloper then
-			loadstring(readfile('newvape/loader.lua'), 'loader')()
+			loadstring(readfile('sentinelrise/loader.lua'), 'loader')()
 		else
-			 loadstring(game:HttpGet('https://raw.githubusercontent.com/AsuraXowner/SentinelVAPE/'..readfile('newvape/profiles/commit.txt')..'/loader.lua', true))()
+			 loadstring(game:HttpGet('https://raw.githubusercontent.com/AsuraXowner/SentinelRise/'..readfile('sentinelrise/profiles/commit.txt')..'/loader.lua', true))()
 		end
 	end
 })
@@ -3468,7 +3465,7 @@ function mainapi:UpdateTextGUI(afterload)
 					holderline.Size = UDim2.fromOffset(2, 18)
 					holderline.Position = UDim2.new(1, 0, 0, 2)
 					holderline.BackgroundTransparency = 1
-					holderline.Image = getcustomasset('newvape/assets/rise/slice.png')
+					holderline.Image = getcustomasset('sentinelrise/assets/rise/slice.png')
 					holderline.ImageColor3 = uipallet.MainColor
 					holderline.ZIndex = -1
 					holderline.Parent = holderbackground
