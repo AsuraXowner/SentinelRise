@@ -12,7 +12,7 @@ end
 local function downloadFile(path, func)
 	if not isfile(path) then
 		local suc, res = pcall(function()
-			return game:HttpGet('https://raw.githubusercontent.com/AsuraXowner/SentinelRise/main/'..select(1, path:gsub('newvape/', '')), true)
+			return game:HttpGet('https://raw.githubusercontent.com/AsuraXowner/SentinelRise/main/'..select(1, path:gsub('sentinelrise/', '')), true)
 		end)
 		if not suc or res == '404: Not Found' then
 			error(res)
@@ -35,7 +35,7 @@ local function wipeFolder(path)
 	end
 end
 
-for _, folder in {'newvape', 'newvape/games', 'newvape/profiles', 'newvape/assets', 'newvape/libraries', 'newvape/guis'} do
+for _, folder in {'sentinelrise', 'sentinelrise/games', 'sentinelrise/profiles', 'sentinelrise/assets', 'sentinelrise/libraries', 'sentinelrise/guis'} do
 	if not isfolder(folder) then
 		makefolder(folder)
 	end
@@ -43,7 +43,7 @@ end
 
 if not shared.VapeDeveloper then
 	local commit = "main"
-	writefile('newvape/profiles/commit.txt', commit)
+	writefile('sentinelrise/profiles/commit.txt', commit)
 end
 
-return loadstring(downloadFile('newvape/main.lua'), 'main')()
+return loadstring(downloadFile('sentinelrise/main.lua'), 'main')()
