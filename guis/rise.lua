@@ -1,4 +1,3 @@
---This watermark is used to delete the file if its cached, remove it to make the file persist after vape updates.
 local mainapi = {
 	Categories = {},
 	GUIColor = {
@@ -41,6 +40,11 @@ local info = TweenInfo.new(0.8, Enum.EasingStyle.Exponential, Enum.EasingDirecti
 
 local fontsize = Instance.new('GetTextBoundsParams')
 fontsize.Width = math.huge
+local IsOpen = false
+local IsClosing = false
+local CloseJob = nil
+local FinishedFiles = 0
+local DownloaderGui, Background, ProgressBar, StatusLabel
 local notifications
 local assetfunction = getcustomasset
 local getcustomasset
@@ -256,6 +260,192 @@ local function makeDraggable(obj, window)
 	end)
 end
 
+local function new(class, props, parent)
+    local obj = Instance.new(class)
+    for k, v in pairs(props) do
+        obj[k] = v
+    end
+    obj.Parent = parent
+    return obj
+end
+
+function DownloaderOpen()
+    if IsOpen then return end
+    IsOpen = true
+    IsClosing = false
+
+    DownloaderGui = new("ScreenGui", {
+        Name = "Installer",
+        ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    }, (gethui and gethui()) or cloneref(game:GetService("CoreGui")))
+
+    Background = new("CanvasGroup", {
+        BackgroundColor3 = Color3.fromRGB(23, 26, 33),
+        BackgroundTransparency = 0.1,
+        GroupTransparency = 1,
+        Size = UDim2.fromOffset(502, 179),
+        Position = UDim2.fromScale(0.5, 0.5),
+        AnchorPoint = Vector2.new(0.5, 0.5)
+    }, DownloaderGui)
+
+    addCorner(Background, UDim.new(0, 22))
+    makeDraggable(Background)
+
+    new("UIListLayout", {
+        HorizontalAlignment = Enum.HorizontalAlignment.Center,
+        SortOrder = Enum.SortOrder.LayoutOrder
+    }, Background)
+
+	local version = new("TextLabel", {
+        Text = mainapi.Version,
+        LayoutOrder = 1,
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 0, 40),
+        FontFace = Font.fromEnum(Enum.Font.Arial),
+        TextSize = 18,
+        TextColor3 = Color3.new(1,1,1),
+        TextYAlignment = Enum.TextYAlignment.Bottom
+    }, Background)
+	 GradientAPI:CreateGradient({
+        Object = version,
+        Colors = {
+            Main = Color3.fromRGB(45,173,198),
+            Secondary = Color3.fromRGB(78,137,173),
+            Third = Color3.fromRGB(255,255,255)
+        },
+        Mode = "fade",
+        Direction = "LeftToRight",
+        Speed = 1
+    })
+
+    local title = new("TextLabel", {
+        Text = "Sentinel",
+        LayoutOrder = 1,
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 0, 50),
+        FontFace = Font.fromEnum(Enum.Font.Arial),
+        TextSize = 38,
+        TextColor3 = Color3.new(1,1,1),
+        TextYAlignment = Enum.TextYAlignment.Bottom
+    }, Background)
+	 GradientAPI:CreateGradient({
+        Object = title,
+        Colors = {
+            Main = Color3.fromRGB(45,173,198),
+            Secondary = Color3.fromRGB(78,137,173),
+            Third = Color3.fromRGB(255,255,255)
+        },
+        Mode = "fade",
+        Direction = "LeftToRight",
+        Speed = 1
+    })
+
+    local barHolder = new("Frame", {
+        LayoutOrder = 2,
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 0, 40) 
+    }, Background)
+
+    new("UIListLayout", {
+        VerticalAlignment = Enum.VerticalAlignment.Center,
+        HorizontalAlignment = Enum.HorizontalAlignment.Center
+    }, barHolder)
+
+    local barBG = new("Frame", {
+        BackgroundColor3 = Color3.fromRGB(25, 28, 36),
+        Size = UDim2.fromOffset(400, 10)
+    }, barHolder)
+    addCorner(barBG, UDim.new(1, 0))
+
+    ProgressBar = new("Frame", {
+        Size = UDim2.new(0, 0, 1, 0)
+    }, barBG)
+	GradientAPI:CreateGradient({
+        Object = ProgressBar,
+        Colors = {
+            Main = Color3.fromRGB(45,173,198),
+            Secondary = Color3.fromRGB(78,137,173),
+            Third = Color3.fromRGB(255,255,255)
+        },
+        Mode = "fade",
+        Direction = "LeftToRight",
+        Speed = 1
+    })
+    addCorner(ProgressBar, UDim.new(1, 0))
+
+    StatusLabel = new("TextLabel", {
+        LayoutOrder = 3,
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 0, 30),
+        FontFace = Font.fromEnum(Enum.Font.Arial),
+        TextSize = 16,
+        TextTransparency = 0.8,
+        TextColor3 = Color3.new(1,1,1),
+        Text = "Initializing..."
+    }, Background)
+	GradientAPI:CreateGradient({
+        Object = StatusLabel,
+        Colors = {
+            Main = Color3.fromRGB(45,173,198),
+            Secondary = Color3.fromRGB(78,137,173),
+            Third = Color3.fromRGB(255,255,255)
+        },
+        Mode = "fade",
+        Direction = "LeftToRight",
+        Speed = 1
+    })
+
+    tweenService:Create(Background, info, { GroupTransparency = 0 }):Play()
+end
+
+function DownloaderUpdate(label)
+    if not IsOpen then return end
+    if IsClosing and CloseJob then
+        task.cancel(CloseJob)
+        IsClosing = false
+        CloseJob = nil
+    end
+    StatusLabel.Text = "Downloading " .. label
+end
+
+function Close()
+    IsClosing = true
+    StatusLabel.Text = "Finalizing..."
+    CloseJob = task.delay(3, function()
+        if not IsClosing then return end 
+        tweenService:Create(ProgressBar, TweenInfo.new(0.5), { Size = UDim2.new(1, 0, 1, 0) }):Play()
+        task.wait(0.6)
+
+        tweenService:Create(Background, info, { GroupTransparency = 1 }):Play()
+        task.wait(1)
+        if DownloaderGui then DownloaderGui:Destroy() end
+        DownloaderGui = nil
+        IsOpen = false
+        IsClosing = false
+        FinishedFiles = 0 
+    end)
+end
+
+function DownloaderFinishFile(label)
+    if not IsOpen then return end
+    FinishedFiles = FinishedFiles + 1
+    StatusLabel.Text = "Installed " .. label
+    local progress = math.clamp(FinishedFiles / 7, 0, 0.95)
+    tweenService:Create(ProgressBar, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {
+        Size = UDim2.new(progress, 0, 1, 0)
+    }):Play()
+    Close()
+end
+
+local function createDownloader(text)
+    if not mainapi.Loaded then
+        if not IsOpen then
+            DownloaderOpen()
+        end
+        DownloaderUpdate(text)
+    end
+end
+
 local function createHighlight(size, pos)
 	local old = categoryhighlight
 	local info = TweenInfo.new(0.3)
@@ -282,8 +472,40 @@ local function createHighlight(size, pos)
 	end
 end
 
+local function downloadFile(path, func)
+    if not isfile(path) then
+        createDownloader(path)
+        
+        local suc, res = pcall(function()
+            return game:HttpGet(
+                'https://raw.githubusercontent.com/AsuraXowner/SentinelRise/' ..
+                readfile('sentinelrise/profiles/commit.txt') .. '/' ..
+                select(1, path:gsub('sentinelrise/', '')),
+                true
+            )
+        end)
+
+        if not suc or not res or res == '404: Not Found' then
+            warn("Download failed:", path)
+            DownloaderFinishFile(path)
+            return nil
+        end
+
+        if path:find('%.lua$') then
+            res = '--This watermark is used to delete the file if its cached, remove it to make the file persist after vape updates.\n' .. res
+        end
+
+        writefile(path, res)
+        DownloaderFinishFile(path)
+    end
+
+    return (func or readfile)(path)
+end
+
+
+
 getcustomasset = not inputService.TouchEnabled and assetfunction and function(path)
-	return getcustomassets[path] or ''
+	return downloadFile(path, assetfunction)
 end or function(path)
 	return getcustomassets[path] or ''
 end
