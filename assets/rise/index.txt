@@ -1,0 +1,9 @@
+Icon-1.ttf
+Icon-3.ttf
+SF-Pro-Rounded-Light.otf
+SF-Pro-Rounded-Medium.otf
+SF-Pro-Rounded-Regular.otf
+productsans.json
+sentinel.png
+slice.png
+textsentinel.png
