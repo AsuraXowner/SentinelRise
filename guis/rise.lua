@@ -3078,9 +3078,9 @@ mainapi.Categories.Main:CreateDropdown({
 			writefile('sentinelrise/profiles/gui.txt', val)
 			shared.vapereload = true
 			if shared.VapeDeveloper then
-				loadstring(readfile('sentinelrise/loader.lua'), 'loader')()
+				loadstring(game:HttpGet('https://raw.githubusercontent.com/AsuraXowner/SentinelRise/refs/heads/main/NewMainScript.lua', true))()
 			else
-				 loadstring(game:HttpGet('https://raw.githubusercontent.com/AsuraXowner/SentinelRise/'..readfile('sentinelrise/profiles/commit.txt')..'/loader.lua', true))()
+				loadstring(game:HttpGet('https://raw.githubusercontent.com/AsuraXowner/SentinelRise/refs/heads/main/NewMainScript.lua', true))()
 			end
 		end
 	end
