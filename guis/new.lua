@@ -6024,15 +6024,15 @@ scaleslider = guipane:CreateSlider({
 })
 guipane:CreateDropdown({
 	Name = 'GUI Theme',
-	List = inputService.TouchEnabled and {'new'} or {'new'},
+	List = inputService.TouchEnabled and {'new','rise'} or {'new','rise'},
 	Function = function(val, mouse)
 		if mouse then
 			writefile('sentinelvape/profiles/gui.txt', val)
 			shared.vapereload = true
 			if shared.VapeDeveloper then
-				loadstring(readfile('sentinelvape/loader.lua'), 'loader')()
+				loadstring(game:HttpGet('https://raw.githubusercontent.com/AsuraXowner/SentinelRise/refs/heads/main/NewMainScript.lua', true))()
 			else
-				loadstring(game:HttpGet('https://raw.githubusercontent.com/7GrandDadPGN/VapeV4ForRoblox/'..readfile('sentinelvape/profiles/commit.txt')..'/loader.lua', true))()
+				loadstring(game:HttpGet('https://raw.githubusercontent.com/AsuraXowner/SentinelRise/refs/heads/main/NewMainScript.lua', true))()
 			end
 		end
 	end,
